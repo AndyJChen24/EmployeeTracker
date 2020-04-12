@@ -34,7 +34,7 @@ function getAll(){
                     connection.query('select * from department;', (err, res)=>{
                         //console.log(res)
                         res.forEach(element => {
-                            allDepartments.push(element.name)
+                            allDepartments.push({name:element.name, id: element.id})
                         })
                         resolve(allRoles,allEmployees,allDepartments)
                     })
@@ -66,6 +66,8 @@ async function runStart(){
             "Update an employee's role",
             "Update an employee's manager",
             "Delete an employee",
+            "Delete a role",
+            "Delete a department",
             "Exit"
         ]
     }).then(data=>{
@@ -99,6 +101,12 @@ async function runStart(){
                 break;
             case "Delete an employee":
                 deleteEmployee();
+                break;
+            case "Delete a role":
+                deleteRole();
+                break;
+            case "Delete a department":
+                deleteDepartment();
                 break;
             case "Exit":
                 connection.end();
@@ -349,7 +357,9 @@ function viewByManager(){
     })
 }
 
+//delete an employee from
 function deleteEmployee(){
+    let personID;
     inquirer.prompt(
         {
             name: "delete",
@@ -365,6 +375,53 @@ function deleteEmployee(){
         })
         connection.query(`Delete from employee where id = ${personID}`,(err,res)=>{
             if (err) throw err;
+            runStart();
+        })
+    })
+}
+
+function deleteDepartment(){
+    let departmentID;
+    inquirer.prompt(
+        {
+            name: "delete",
+            type: "list",
+            message: "Select an department to delete from database.",
+            choices: allDepartments
+        }
+    ).then(data=>{
+        allDepartments.forEach(element=>{
+            if(element.name === data.delete){
+                departmentID = element.id  
+            }
+        })
+        connection.query(`Delete from department where id = ${departmentID}`,(err,res)=>{
+            if (err) throw err;
+            runStart();
+        })
+    })
+}
+
+// delete a role from employee
+function deleteRole(){
+    let roleID;
+    inquirer.prompt(
+        {
+            name: "delete",
+            type: "list",
+            message: "Select an role to delete from database.",
+            choices: allRoles
+        }
+    ).then(data=>{
+        allRoles.forEach(element=>{
+            if(element.name === data.delete){
+                roleID = element.id  
+            }
+        })
+        connection.query(`Delete from role where id = ${roleID}`,(err,res)=>{
+            if (err) {
+                console.log("Fail to delete. Please delete or update all employee with this role first.")
+            };
             runStart();
         })
     })
