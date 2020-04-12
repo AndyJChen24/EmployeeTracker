@@ -17,6 +17,9 @@ connection.connect(err=>{
 })
 
 function getAll(){
+    allRoles= [];
+    allEmployees =[];
+    allDepartments =[];
     return new Promise((resolve,reject)=>{
             connection.query('select title, id from role;', (err, res)=>{
                 res.forEach(element => {
@@ -46,9 +49,6 @@ function getAll(){
 
 async function runStart(){
     const result = await getAll();
-    //console.log(allEmployees);
-    //console.log(allRoles)
-    //console.log(allDepartments)
     
     inquirer.prompt({
         name:"start",
@@ -57,6 +57,7 @@ async function runStart(){
         choices: 
         [
             "View all employees",
+            "View by manager",
             "View all departments",
             "View all roles",
             "Add employee",
@@ -70,6 +71,9 @@ async function runStart(){
         switch(data.start){
             case "View all employees":
                 viewAllEmployee();
+                break;
+            case "View by manager":
+                viewByManager();
                 break;
             case "View all departments":
                 viewDepartments();
@@ -101,7 +105,6 @@ async function runStart(){
 }
 
 // Prompt user for new employee info
-// Working done
 function addEmployee(){
     let roleID;
     let managerID;
@@ -155,7 +158,6 @@ function addEmployee(){
 }
 
 // prompt user for new department name
-// Working done
 function addDepartment(){
     inquirer.prompt({
         name:"department",
@@ -172,7 +174,6 @@ function addDepartment(){
 }
 
 // prompt user for roles and salary and department id
-// Done complete
 function addRole(){
     inquirer.prompt([
         {
@@ -209,7 +210,6 @@ function addRole(){
 }
 
 // view all department
-// done complete
 function viewDepartments(){
     connection.query("select * from department;", (err,res)=>{
         if(err) throw err;
@@ -218,8 +218,8 @@ function viewDepartments(){
         runStart();
     })
 }
+
 // view all roles
-// Done complete
 function viewRoles(){
     connection.query("select * from role;", (err,res)=>{
         if(err) throw err;
@@ -228,8 +228,8 @@ function viewRoles(){
         runStart();
     })
 }
+
 // view all (need all three tables employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, manager.name
-// Done Complete
 function viewAllEmployee(){
     connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
     FROM employee
@@ -317,3 +317,30 @@ function updateEmployeeManager(){
     })
 }
 
+// view an employee by manager
+
+function viewByManager(){
+    let personID;
+    
+    inquirer.prompt([
+        {
+            name: "manager",
+            type: "list",
+            message: "Select a employee to see all the employee manage.",
+            choices: allEmployees
+        }
+    ]).then(data=>{
+        allEmployees.forEach(element=>{
+            if(element.name === data.manager){
+                personID = element.id  
+            }
+        })
+
+        connection.query(`SELECT * FROM employee where manager_id =${personID}`, (err,res)=>{
+            if(err) throw err;
+            console.table(res)
+            // run again
+            runStart();
+        })
+    })
+}
