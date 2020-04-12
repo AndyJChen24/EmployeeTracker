@@ -32,7 +32,7 @@
 
   ## Credits
   Myself <br />
-  Iyrna Grom
+  Iryna Grom
 
   ## License
   none
