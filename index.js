@@ -65,6 +65,7 @@ async function runStart(){
             "Add role",
             "Update an employee's role",
             "Update an employee's manager",
+            "Delete an employee",
             "Exit"
         ]
     }).then(data=>{
@@ -95,6 +96,9 @@ async function runStart(){
                 break;
             case "Update an employee's manager":
                 updateEmployeeManager();
+                break;
+            case "Delete an employee":
+                deleteEmployee();
                 break;
             case "Exit":
                 connection.end();
@@ -280,6 +284,7 @@ function updateEmployeeRole(){
         })
     })
 }
+
 // update an employee's manager
 function updateEmployeeManager(){
     let updatePersonID;
@@ -318,7 +323,6 @@ function updateEmployeeManager(){
 }
 
 // view an employee by manager
-
 function viewByManager(){
     let personID;
     
@@ -340,6 +344,27 @@ function viewByManager(){
             if(err) throw err;
             console.table(res)
             // run again
+            runStart();
+        })
+    })
+}
+
+function deleteEmployee(){
+    inquirer.prompt(
+        {
+            name: "delete",
+            type: "list",
+            message: "Select an employee to delete from database.",
+            choices: allEmployees
+        }
+    ).then(data=>{
+        allEmployees.forEach(element=>{
+            if(element.name === data.delete){
+                personID = element.id  
+            }
+        })
+        connection.query(`Delete from employee where id = ${personID}`,(err,res)=>{
+            if (err) throw err;
             runStart();
         })
     })
