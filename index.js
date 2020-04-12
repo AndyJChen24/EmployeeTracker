@@ -8,30 +8,31 @@ const connection = mysql.createConnection({
     host:"localhost",
     port: 3306,
     user: "root",
-    password: "Jc242242+",
+    password: "",
     database: "employeetrack_db"
 });
-
+//start connection to database
 connection.connect(err=>{
     if (err) throw err;
     runStart();
 })
-
+// get data from data 
 function getAll(){
     allRoles= [];
     allEmployees =[];
     allDepartments =[];
     return new Promise((resolve,reject)=>{
+            // get and store role data and id
             connection.query('select title, id from role;', (err, res)=>{
                 res.forEach(element => {
                     allRoles.push({name: element.title, id: element.id})
                 })
-                
+                //get and store employee name and id
                 connection.query('select first_name, last_name, id from employee;', (err, res)=>{
                     res.forEach(element => {
                         allEmployees.push({name:element.first_name+" "+element.last_name,id: element.id });
                     });
-
+                    // get and store department and id
                     connection.query('select * from department;', (err, res)=>{
                         //console.log(res)
                         res.forEach(element => {
@@ -49,8 +50,9 @@ function getAll(){
 
 
 async function runStart(){
+    // wait until get data is done
     const result = await getAll();
-    
+    // prompt user 
     inquirer.prompt({
         name:"start",
         type: "list",
@@ -177,6 +179,7 @@ function addDepartment(){
         type:"input",
         message:"Please enter the department name."
     }).then(data=>{
+        // insert new department into table
         connection.query(`INSERT INTO department (name) VALUES ("${data.department}");`, (err,res)=>{
             if(err) throw err;
             console.log(`${data.department} has been added.`);
@@ -274,17 +277,20 @@ function updateEmployeeRole(){
             choices: allRoles
         }
     ]).then(data=>{
+        // check which employee it is by comparing array object
         allEmployees.forEach(element=>{
             if(element.name === data.update){
                 updatePersonID = element.id
                 
             }
         })
+        // check which role by comparing to array object
         allRoles.forEach(element=>{
             if(element.name === data.newRole){
                 updateRoleID = element.id
             }
         })
+        // update info
         connection.query(`Update employee set role_id =${updateRoleID} where id = ${updatePersonID}`, (err,res)=>{
             if(err) throw err;
             console.log("Employee Updated")
@@ -312,16 +318,19 @@ function updateEmployeeManager(){
             choices: allEmployees
         }
     ]).then(data=>{
+        // check which employee it is and get the id from array object 
         allEmployees.forEach(element=>{
             if(element.name === data.update){
                 updatePersonID = element.id  
             }
         })
+        // check which employee it is and get the id from array object 
         allEmployees.forEach(element=>{
             if(element.name === data.newManager){
                 updateManagerID = element.id
             }
         })
+        // update new manager id to employee
         connection.query(`Update employee set manager_id =${updateManagerID} where id = ${updatePersonID}`, (err,res)=>{
             if(err) throw err;
             console.log("Employee Updated")
@@ -343,12 +352,13 @@ function viewByManager(){
             choices: allEmployees
         }
     ]).then(data=>{
+        // check which employee it is and get the id from array object 
         allEmployees.forEach(element=>{
             if(element.name === data.manager){
                 personID = element.id  
             }
         })
-
+        // get the employee using manager id
         connection.query(`SELECT * FROM employee where manager_id =${personID}`, (err,res)=>{
             if(err) throw err;
             console.table(res)
@@ -369,11 +379,13 @@ function deleteEmployee(){
             choices: allEmployees
         }
     ).then(data=>{
+        //check which employee it is and get the id from array object 
         allEmployees.forEach(element=>{
             if(element.name === data.delete){
                 personID = element.id  
             }
         })
+        // delete the person
         connection.query(`Delete from employee where id = ${personID}`,(err,res)=>{
             if (err) throw err;
             runStart();
@@ -391,11 +403,13 @@ function deleteDepartment(){
             choices: allDepartments
         }
     ).then(data=>{
+        //check which department it is and get the id from array object 
         allDepartments.forEach(element=>{
             if(element.name === data.delete){
                 departmentID = element.id  
             }
         })
+        // delete the department
         connection.query(`Delete from department where id = ${departmentID}`,(err,res)=>{
             if (err) throw err;
             runStart();
@@ -414,11 +428,13 @@ function deleteRole(){
             choices: allRoles
         }
     ).then(data=>{
+        //check which role it is and get the id from array object 
         allRoles.forEach(element=>{
             if(element.name === data.delete){
                 roleID = element.id  
             }
         })
+        //delete role but if err code is 1451 then prompt user to do something
         connection.query(`Delete from role where id = ${roleID}`,(err,res)=>{
             if (err.errno == 1451) {
                 console.log("Fail to delete. Please delete or update all employee with this role first.")

@@ -12,7 +12,7 @@
     * Tests
 
   ## Installation
-  Download a copy of this folder. In the folder open employeetrack_db.sql and create the database. Open seed.sql and populate the tables. Once complete use command prompt to cd to the folder with index.js. Use command "npm i" to install required files then start the program using "node index.js".
+  Download a copy of this folder. In the folder open employeetrack_db.sql and create the database. Open seed.sql and populate the tables. Open index.js and enter the password for your mysql in the require section. Once complete use command prompt to cd to the folder with index.js. Use command "npm i" to install required files then start the program using "node index.js". 
 
 
   ## Usage
