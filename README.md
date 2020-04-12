@@ -31,8 +31,8 @@
   * Delete departments, roles, and employees
 
   ## Credits
-  **Myself**
-  **Iyrna Grom**
+  Myself <br />
+  Iyrna Grom
 
   ## License
   none
