@@ -1,5 +1,6 @@
 const mysql = require("mysql")
 const inquirer = require("inquirer")
+require('console.table')
 let allRoles= [];
 let allEmployees =[];
 let allDepartments =[];
@@ -419,7 +420,7 @@ function deleteRole(){
             }
         })
         connection.query(`Delete from role where id = ${roleID}`,(err,res)=>{
-            if (err) {
+            if (err.errno == 1451) {
                 console.log("Fail to delete. Please delete or update all employee with this role first.")
             };
             runStart();
